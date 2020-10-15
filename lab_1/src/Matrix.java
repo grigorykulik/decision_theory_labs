@@ -10,6 +10,8 @@ import java.util.Scanner;
 public class Matrix {
     final int rows=4;
     final int columns=5;
+    ArrayList<String> xS=new ArrayList<String>();
+    ArrayList<String> fS=new ArrayList<String>();
 
     public int[][] mtrx=new int[rows][columns];
 
@@ -26,11 +28,22 @@ public class Matrix {
                 }
             }
 
+            for (int i=0; i<this.rows; i++) {
+                xS.add("X"+i);
+            }
+
+            for (int j=0; j<this.columns; j++) {
+                fS.add("F"+j);
+            }
         }
 
        catch (FileNotFoundException e) {
             System.out.println("File not found. Check that the file exists.");
             System.exit(0);
        }
+    }
+
+    public Matrix(Matrix m) {
+        this.mtrx=m.mtrx;
     }
 }
