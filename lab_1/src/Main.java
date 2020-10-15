@@ -8,10 +8,10 @@ public class Main {
 
         DecisionMaker dm=new DecisionMaker(mx);
 
-        int decisionMinimax=dm.getMiniMax();
+        dm.getMiniMax();
 //        System.out.println("Decision based on the minimax criterion "+decisionMinimax);
 
-        int decisionSavage=dm.getSavage();
-//        System.out.println("Decision based on the Savage criterion "+decisionSavage);
+        dm.getSavage();
+////        System.out.println("Decision based on the Savage criterion "+decisionSavage);
     }
 }

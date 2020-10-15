@@ -1,10 +1,15 @@
+import javax.xml.transform.Result;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.NoSuchElementException;
+
+import static java.util.stream.Collectors.toList;
 
 public class DecisionMaker {
     private final Matrix m;
-    private ArrayList<Integer> minimumsColumn=new ArrayList<Integer>();
+    private ArrayList<Element> minimumsColumn=new ArrayList<Element>();
 
     public DecisionMaker(Matrix m) {
         this.m=m;
@@ -16,119 +21,114 @@ public class DecisionMaker {
 
     /**
      * Iterate through each row of the matrix. Find the minimum in each row.
-     * Create an array whose elements are minimums obtained in the previous step.
-     * Find the maximum value in this array. This value
+     * Create an array of obtained minimums.
+     * Find the maximum value(s) in this array. This value
      * is the decision based on the minimax criterion.
      * **/
-    public int getMiniMax() {
-
-        ArrayList<String> solutionRows=new ArrayList<String>();
-        ArrayList<String> solutionColumns=new ArrayList<String>();
+    public void getMiniMax() {
 
         for (int i=0; i<m.rows; i++) {
             minimumsColumn.add(getMinimumInARow(i));
         }
 
-        Integer max=minimumsColumn
+        //Find the maximum among minimums
+        Element max=minimumsColumn
                 .stream()
-                .mapToInt(v -> v)
-                .max().orElseThrow(NoSuchElementException::new);
+                .max(Comparator.comparing(Element::getValue))
+                .orElseThrow(NoSuchElementException::new);
 
-        int numberOfSolutions=0;
-        for (int i=0; i<m.rows; i++) {
-            for (int j=0; j<m.columns; j++) {
-                if (m.mtrx[i][j]==max) {
-                    numberOfSolutions++;
-                    solutionRows.add(m.xS.get(i));
-                    solutionColumns.add(m.fS.get(j));
-                }
-            }
-        }
+        //Compare values in minimumsColumn with the obtained maximum and collect them into a list
+        List<Element> result=minimumsColumn
+                .stream()
+                .filter(s->s.getValue()==max.getValue())
+                .collect(toList());
 
         System.out.println("Decisions based on the Minimax criterion");
 
-        for (int i=0; i<solutionRows.size(); i++) {
-            System.out.println(solutionRows.get(i)+", "+solutionColumns.get(i));
+        for (int i = 0; i<result.size(); i++) {
+            System.out.println(result.get(i).getRow()+result.get(i).getColumn());
         }
-
-        return max;
     }
 
-    /** find the minimum in the given line **/
-    public Integer getMinimumInARow(int k) {
-        ArrayList<Integer> aux=new ArrayList<>();
+    /** find the minimum in the given row **/
+    public Element getMinimumInARow(int k) {
+        ArrayList<Element> aux=new ArrayList<Element>();
 
         for (int j=0; j<m.columns; j++) {
             aux.add(m.mtrx[k][j]);
         }
 
-        Integer min=aux
+        Element min=aux
                 .stream()
-                .mapToInt(v -> v)
-                .min().orElseThrow(NoSuchElementException::new);
+                .min(Comparator.comparing(Element::getValue))
+                .orElseThrow(NoSuchElementException::new);
 
         return min;
     }
 
-    public int getSavage() throws FileNotFoundException {
-        Matrix auxMatrixMutable=new Matrix("/home/greg/input.txt");
-        final Matrix auxMatrixImmutable=new Matrix("/home/greg/input.txt");
+        public void getSavage() throws FileNotFoundException {
 
-        ArrayList<Integer> maximumsColumn=new ArrayList<>();
-        ArrayList<String> solutionRows=new ArrayList<String>();
-        ArrayList<String> solutionColumns=new ArrayList<String>();
+            /**
+             * Create two matrices.
+             * auxMatrixImmutable is used as a reference matrix. It will not mutate.
+             * auxMatrixMutable is passed as an argument. It is going to mutate when we subtract maximums from
+             * elements in corresponding columns
+             **/
 
-        int k=0;
-        for (int j=0; j<auxMatrixImmutable.columns; j++) {
-            for (int i=0; i<auxMatrixImmutable.rows; i++) {
-                auxMatrixMutable.mtrx[i][j]=this.getMaximumInAColumn(k, auxMatrixImmutable)-auxMatrixImmutable.mtrx[i][j];
-            }
-            k++;
-        }
+            Matrix auxMatrixMutable=new Matrix("/home/greg/input.txt");
+            Matrix auxMatrixImmutable=new Matrix("/home/greg/input.txt");
 
-        for (int j=0; j<auxMatrixImmutable.columns; j++) {
-            maximumsColumn.add(getMaximumInAColumn(j, auxMatrixImmutable));
-        }
+            ArrayList<Element> maximumsColumn=new ArrayList<Element>();
 
-        Integer min=maximumsColumn
-                .stream()
-                .mapToInt(v -> v)
-                .min().orElseThrow(NoSuchElementException::new);
 
-        int numberOfSolutions=0;
-        for (int i=0; i<m.rows; i++) {
-            for (int j=0; j<m.columns; j++) {
-                if (auxMatrixMutable.mtrx[i][j]==min) {
-                    numberOfSolutions++;
-                    solutionRows.add(m.xS.get(i));
-                    solutionColumns.add(m.fS.get(j));
+            //Find the maximum value in each column and subtract each element in this colum from
+            //this maximum value. Store the obtained values in auxMatrixMutable
+            for (int j=0; j<auxMatrixImmutable.columns; j++) {
+                for (int i = 0; i < auxMatrixImmutable.rows; i++) {
+                    int newValue = this.getMaximumInAColumn(j, auxMatrixImmutable).getValue()
+                            - auxMatrixImmutable.mtrx[i][j].getValue();
+                    auxMatrixMutable.mtrx[i][j].setValue(newValue);
                 }
             }
-        }
 
-        System.out.println("Decisions based on the Savage criterion");
+            //Find the maximum value in each column in the mutated matrix auxMatrixMutable
+            //Add all these maximums to the ArrayList
+            for (int j=0; j<auxMatrixImmutable.columns; j++) {
+                maximumsColumn.add(getMaximumInAColumn(j, auxMatrixMutable));
+            }
 
-        for (int i=0; i<solutionRows.size(); i++) {
-            System.out.println(solutionRows.get(i)+", "+solutionColumns.get(i));
-        }
+            //Get the minimum value from the ArrayList that contains maximums
+            Element min=maximumsColumn
+                .stream()
+                .min(Comparator.comparing(Element::getValue))
+                .orElseThrow(NoSuchElementException::new);
 
-        return min;
+            //Compare the minimum value with other elements in the maximums ArrayList
+            //Collect them into a list as there can be multiple solutions
+            List<Element> result=maximumsColumn
+                    .stream()
+                    .filter(s->s.getValue()==min.getValue())
+                    .collect(toList());
+
+            System.out.println("Decisions based on the Savage criterion");
+                for (int i = 0; i<result.size(); i++) {
+                    System.out.println(result.get(i).getRow()+result.get(i).getColumn()+" "+result.get(i).getValue());
+            }
     }
 
     // find the maximum in the given column
-    public Integer getMaximumInAColumn(int k, Matrix matrix) {
-        ArrayList<Integer> aux=new ArrayList<>();
+    public Element getMaximumInAColumn(int k, Matrix matrix) {
+        ArrayList<Element> aux = new ArrayList<Element>();
 
-        for (int i=0; i<matrix.rows; i++) {
+        for (int i = 0; i < matrix.rows; i++) {
             aux.add(matrix.mtrx[i][k]);
         }
 
-        Integer max=aux
+        Element max = aux
                 .stream()
-                .mapToInt(v -> v)
-                .max().orElseThrow(NoSuchElementException::new);
+                .max(Comparator.comparing(Element::getValue))
+                .orElseThrow(NoSuchElementException::new);
 
         return max;
     }
-
 }
