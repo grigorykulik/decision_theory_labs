@@ -1,4 +1,5 @@
-import javax.xml.transform.Result;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -9,16 +10,25 @@ import static java.util.stream.Collectors.toList;
 
 public class DecisionMaker {
     private final Matrix m;
-    private ArrayList<Element> minimumsColumn=new ArrayList<Element>();
+    private ArrayList<Element> minimumsColumn=new ArrayList<>();
 
+    /**
+     * copy constructor
+     */
     public DecisionMaker(Matrix m) {
         this.m=m;
     }
 
+    /**
+     * arguably the only getter we need
+     */
     public Matrix getM() {
         return this.m;
     }
 
+    /**
+     * print the matrix
+     */
     public void printMatrix() {
         System.out.println("Original matrix");
         for (int i=0; i<this.getM().rows; i++) {
@@ -42,13 +52,13 @@ public class DecisionMaker {
             minimumsColumn.add(getMinimumInARow(i));
         }
 
-        //Find the maximum among minimums
+        /** Find the maximum among minimums */
         Element max=minimumsColumn
                 .stream()
                 .max(Comparator.comparing(Element::getValue))
                 .orElseThrow(NoSuchElementException::new);
 
-        //Compare values in minimumsColumn with the obtained maximum and collect them into a list
+        /**Compare values in minimumsColumn with the obtained maximum and collect them into a list */
         List<Element> result=minimumsColumn
                 .stream()
                 .filter(s->s.getValue()==max.getValue())
@@ -61,39 +71,26 @@ public class DecisionMaker {
         }
     }
 
-    /** find the minimum in the given row **/
-    public Element getMinimumInARow(int k) {
-        ArrayList<Element> aux=new ArrayList<Element>();
 
-        for (int j=0; j<m.columns; j++) {
-            aux.add(m.mtrx[k][j]);
-        }
-
-        Element min=aux
-                .stream()
-                .min(Comparator.comparing(Element::getValue))
-                .orElseThrow(NoSuchElementException::new);
-
-        return min;
-    }
-
-        public void getSavage() throws FileNotFoundException {
-
-            /**
-             * Create two matrices.
-             * auxMatrixImmutable is used as a reference matrix. It will not mutate.
-             * auxMatrixMutable is passed as an argument. It is going to mutate when we subtract maximums from
-             * elements in corresponding columns
-             **/
+    /** get the dicision based on the Savage criterion */
+    public void getSavage() throws FileNotFoundException {
+        /**
+         * Create two matrices.
+         * auxMatrixImmutable is used as a reference matrix. It will not mutate.
+         * auxMatrixMutable is passed as an argument. It is going to mutate when we subtract maximums from
+         * elements in corresponding columns
+         **/
 
             Matrix auxMatrixMutable=new Matrix("/home/greg/input.txt");
             Matrix auxMatrixImmutable=new Matrix("/home/greg/input.txt");
 
-            ArrayList<Element> maximumsColumn=new ArrayList<Element>();
+            ArrayList<Element> maximumsColumn=new ArrayList<>();
 
 
-            //Find the maximum value in each column and subtract each element in this colum from
-            //this maximum value. Store the obtained values in auxMatrixMutable
+        /**
+         * Find the maximum value in each column and subtract each element in this colum from
+         * this maximum value. Store the obtained values in auxMatrixMutable
+         */
             for (int j=0; j<auxMatrixImmutable.columns; j++) {
                 for (int i = 0; i < auxMatrixImmutable.rows; i++) {
                     double newValue = this.getMaximumInAColumn(j, auxMatrixImmutable).getValue()
@@ -102,20 +99,24 @@ public class DecisionMaker {
                 }
             }
 
-            //Find the maximum value in each column in the mutated matrix auxMatrixMutable
-            //Add all these maximums to the ArrayList
+            /**Find the maximum value in each column in the mutated matrix auxMatrixMutable
+             * Add all these maximums to the ArrayList
+             */
             for (int j=0; j<auxMatrixImmutable.columns; j++) {
                 maximumsColumn.add(getMaximumInAColumn(j, auxMatrixMutable));
             }
 
-            //Get the minimum value from the ArrayList that contains maximums
-            Element min=maximumsColumn
+        /**
+         * Get the minimum value from the ArrayList that contains maximums
+         */
+        Element min=maximumsColumn
                 .stream()
                 .min(Comparator.comparing(Element::getValue))
                 .orElseThrow(NoSuchElementException::new);
 
-            //Compare the minimum value with other elements in the maximums ArrayList
-            //Collect them into a list as there can be multiple solutions
+            /**Compare the minimum value with other elements in the maximums ArrayList
+             * Collect them into a list as there can be multiple solutions
+             */
             List<Element> result=maximumsColumn
                     .stream()
                     .filter(s->s.getValue()==min.getValue())
@@ -127,21 +128,6 @@ public class DecisionMaker {
             }
     }
 
-    // find the maximum in the given column
-    public Element getMaximumInAColumn(int k, Matrix matrix) {
-        ArrayList<Element> aux = new ArrayList<Element>();
-
-        for (int i = 0; i < matrix.rows; i++) {
-            aux.add(matrix.mtrx[i][k]);
-        }
-
-        Element max = aux
-                .stream()
-                .max(Comparator.comparing(Element::getValue))
-                .orElseThrow(NoSuchElementException::new);
-
-        return max;
-    }
 
     /**
      * For each row: find minimum, multiply it by the given c, find maximum, multiply it by 1-c, sum the resulting value.
@@ -149,7 +135,7 @@ public class DecisionMaker {
      * Find the maximum among these averages. This is going to be the decision based on the Hurwicz criterion.
      */
     public void getHurwicz() {
-        ArrayList<Element> hwColumn = new ArrayList<Element>();
+        ArrayList<Element> hwColumn = new ArrayList<>();
 
         for (int i = 0; i < m.rows; i++) {
             Element minimum = new Element(getMinimumInARow(i));
@@ -187,13 +173,45 @@ public class DecisionMaker {
 
     /** find the maximum in the given row **/
     public Element getMaximumInARow(int k) {
-        ArrayList<Element> aux=new ArrayList<Element>();
+        ArrayList<Element> aux=new ArrayList<>();
 
         for (int j=0; j<m.columns; j++) {
             aux.add(m.mtrx[k][j]);
         }
 
         Element max=aux
+                .stream()
+                .max(Comparator.comparing(Element::getValue))
+                .orElseThrow(NoSuchElementException::new);
+
+        return max;
+    }
+
+    /** find the minimum in the given row **/
+    public Element getMinimumInARow(int k) {
+        ArrayList<Element> aux=new ArrayList<>();
+
+        for (int j=0; j<m.columns; j++) {
+            aux.add(m.mtrx[k][j]);
+        }
+
+        Element min=aux
+                .stream()
+                .min(Comparator.comparing(Element::getValue))
+                .orElseThrow(NoSuchElementException::new);
+
+        return min;
+    }
+
+    /** find the maximum in the given column */
+    public Element getMaximumInAColumn(int k, @NotNull Matrix matrix) {
+        ArrayList<Element> aux = new ArrayList<Element>();
+
+        for (int i = 0; i < matrix.rows; i++) {
+            aux.add(matrix.mtrx[i][k]);
+        }
+
+        Element max = aux
                 .stream()
                 .max(Comparator.comparing(Element::getValue))
                 .orElseThrow(NoSuchElementException::new);
