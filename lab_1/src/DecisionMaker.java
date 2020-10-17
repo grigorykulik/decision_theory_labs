@@ -19,6 +19,17 @@ public class DecisionMaker {
         return this.m;
     }
 
+    public void printMatrix() {
+        System.out.println("Original matrix");
+        for (int i=0; i<this.getM().rows; i++) {
+            for (int j=0; j<this.getM().columns; j++) {
+                System.out.printf("%5.0f", this.getM().mtrx[i][j].getValue());
+            }
+            System.out.println();
+        }
+    }
+
+
     /**
      * Iterate through each row of the matrix. Find the minimum in each row.
      * Create an array of obtained minimums.
@@ -46,7 +57,7 @@ public class DecisionMaker {
         System.out.println("Decisions based on the Minimax criterion");
 
         for (int i = 0; i<result.size(); i++) {
-            System.out.println(result.get(i).getRow()+result.get(i).getColumn());
+            System.out.println(result.get(i).getRow()+result.get(i).getColumn() + " " + result.get(i).getValue());
         }
     }
 
@@ -85,7 +96,7 @@ public class DecisionMaker {
             //this maximum value. Store the obtained values in auxMatrixMutable
             for (int j=0; j<auxMatrixImmutable.columns; j++) {
                 for (int i = 0; i < auxMatrixImmutable.rows; i++) {
-                    int newValue = this.getMaximumInAColumn(j, auxMatrixImmutable).getValue()
+                    double newValue = this.getMaximumInAColumn(j, auxMatrixImmutable).getValue()
                             - auxMatrixImmutable.mtrx[i][j].getValue();
                     auxMatrixMutable.mtrx[i][j].setValue(newValue);
                 }
@@ -125,6 +136,64 @@ public class DecisionMaker {
         }
 
         Element max = aux
+                .stream()
+                .max(Comparator.comparing(Element::getValue))
+                .orElseThrow(NoSuchElementException::new);
+
+        return max;
+    }
+
+    /**
+     * For each row: find minimum, multiply it by the given c, find maximum, multiply it by 1-c, sum the resulting value.
+     * After this operation is performed to each row, you get a column of weighted averages.
+     * Find the maximum among these averages. This is going to be the decision based on the Hurwicz criterion.
+     */
+    public void getHurwicz() {
+        ArrayList<Element> hwColumn = new ArrayList<Element>();
+
+        for (int i = 0; i < m.rows; i++) {
+            Element minimum = new Element(getMinimumInARow(i));
+            Element maximum = new Element(getMaximumInARow(i));
+
+            minimum.setValue(0.54 * getMinimumInARow(i).getValue());
+            maximum.setValue(0.46 * getMaximumInARow(i).getValue());
+
+            Element sum = new Element();
+
+            //To do: define method add() in the Element class
+            sum.setValue(minimum.getValue() + maximum.getValue());
+            sum.setRow(i);
+            sum.setColumn(1);
+            hwColumn.add(sum);
+            }
+
+        Element finalMax = hwColumn
+                .stream()
+                .max(Comparator.comparing(Element::getValue))
+                .orElseThrow(NoSuchElementException::new);
+
+        List<Element> result = hwColumn
+                .stream()
+                .filter(s -> s.getValue() == finalMax.getValue())
+                .collect(toList());
+
+        System.out.println("Decisions according to Horowicz criterion:");
+
+        for (int k = 0; k < result.size(); k++) {
+            System.out.println(result.get(k).getRow() + " " + result.get(k).getValue());
+
+        }
+    }
+
+    /** find the maximum in the given row **/
+    public Element getMaximumInARow(int k) {
+        ArrayList<Element> aux=new ArrayList<Element>();
+
+        for (int j=0; j<m.columns; j++) {
+            aux.add(m.mtrx[k][j]);
+        }
+
+        Element max=aux
                 .stream()
                 .max(Comparator.comparing(Element::getValue))
                 .orElseThrow(NoSuchElementException::new);

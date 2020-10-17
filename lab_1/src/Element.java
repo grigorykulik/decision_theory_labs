@@ -4,15 +4,24 @@
  */
 
 public class Element {
-    private int value;
+    private double value;
     private String row;
     private String column;
 
-    public int getValue() {
+    public Element () {}
+
+    public Element(Element e){
+        this.row=e.row;
+        this.column=e.column;
+        this.value=e.value;
+    }
+
+
+    public double getValue() {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(double value) {
         this.value = value;
     }
 
