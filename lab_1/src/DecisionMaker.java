@@ -1,5 +1,4 @@
 import org.jetbrains.annotations.NotNull;
-
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,21 +12,21 @@ public class DecisionMaker {
     private ArrayList<Element> minimumsColumn=new ArrayList<>();
 
     /**
-     * copy constructor
+     * конструктор копий
      */
     public DecisionMaker(Matrix m) {
         this.m=m;
     }
 
     /**
-     * arguably the only getter we need
+     * единственный геттер, который нужен нам в этом классе
      */
     public Matrix getM() {
         return this.m;
     }
 
     /**
-     * print the matrix
+     * печать исходной матрицы
      */
     public void printMatrix() {
         System.out.println("Original matrix");
@@ -41,10 +40,10 @@ public class DecisionMaker {
 
 
     /**
-     * Iterate through each row of the matrix. Find the minimum in each row.
-     * Create an array of obtained minimums.
-     * Find the maximum value(s) in this array. This value
-     * is the decision based on the minimax criterion.
+     * Перебираем все строки матрицы. Находим минимум в каждой строке.
+     * Из полученных минимумов создаем массив.
+     * В этом массиве находим максимальный элемент.
+     * Полученное значение будет оптимальным решением согласно минимаксному критерию.
      * **/
     public void getMiniMax() {
 
@@ -52,19 +51,20 @@ public class DecisionMaker {
             minimumsColumn.add(getMinimumInARow(i));
         }
 
-        /** Find the maximum among minimums */
+        /** Находим максимум среди минимумов */
         Element max=minimumsColumn
                 .stream()
                 .max(Comparator.comparing(Element::getValue))
                 .orElseThrow(NoSuchElementException::new);
 
-        /**Compare values in minimumsColumn with the obtained maximum and collect them into a list */
+        /**Сравниваем значения в массиве минимумов minimumsColumn с полученным ранее максимумом.
+         * Полученные значения сохраняем в массив на тот случай, если таких значений несколько */
         List<Element> result=minimumsColumn
                 .stream()
                 .filter(s->s.getValue()==max.getValue())
                 .collect(toList());
 
-        System.out.println("Decisions based on the Minimax criterion");
+        System.out.println("Оптимальное решение согласно минимаксному критерию");
 
         for (int i = 0; i<result.size(); i++) {
             System.out.println(result.get(i).getRow()+result.get(i).getColumn() + " " + result.get(i).getValue());
@@ -72,13 +72,14 @@ public class DecisionMaker {
     }
 
 
-    /** get the dicision based on the Savage criterion */
+    /** Метод для получения решения согласно критерию Сэвиджа */
     public void getSavage() throws FileNotFoundException {
         /**
-         * Create two matrices.
-         * auxMatrixImmutable is used as a reference matrix. It will not mutate.
-         * auxMatrixMutable is passed as an argument. It is going to mutate when we subtract maximums from
-         * elements in corresponding columns
+         * Создаем две матрицы.
+         * auxMatrixImmutable - эталонная матрица, которая не будет меняться.
+         * auxMatrixMutable - матрица, которую будем передавать в качестве аргумента во
+         * вспомогательные методы. Матрица будет мутировать, когда будем вычитать элементы
+         * столбцов из соответствующих максимумов
          **/
 
             Matrix auxMatrixMutable=new Matrix("/home/greg/input.txt");
@@ -88,8 +89,8 @@ public class DecisionMaker {
 
 
         /**
-         * Find the maximum value in each column and subtract each element in this colum from
-         * this maximum value. Store the obtained values in auxMatrixMutable
+         * Находим максимум в каждом столбце и вычитаем каждый элемент этого столбца из этого максимума.
+         * Все полученные элементы остаются на своих местах и записываются в массив auxMatrixMutable
          */
             for (int j=0; j<auxMatrixImmutable.columns; j++) {
                 for (int i = 0; i < auxMatrixImmutable.rows; i++) {
@@ -99,30 +100,31 @@ public class DecisionMaker {
                 }
             }
 
-            /**Find the maximum value in each column in the mutated matrix auxMatrixMutable
-             * Add all these maximums to the ArrayList
+            /**Находим максимум в каждом столбце новой матрицы auxMatrixMutable.
+             * Сохраняем максимумы в массив.
              */
             for (int j=0; j<auxMatrixImmutable.columns; j++) {
                 maximumsColumn.add(getMaximumInAColumn(j, auxMatrixMutable));
             }
 
         /**
-         * Get the minimum value from the ArrayList that contains maximums
+         * Из массива максимумов получаем минимальный элемент.
          */
         Element min=maximumsColumn
                 .stream()
                 .min(Comparator.comparing(Element::getValue))
                 .orElseThrow(NoSuchElementException::new);
 
-            /**Compare the minimum value with other elements in the maximums ArrayList
-             * Collect them into a list as there can be multiple solutions
+            /**Сравниваем минимум со значениями остальных элементов в массиве максимумов.
+             * Сохраняем элементы в массив на тот случай, если указанным условиям соответствуют несколько элементов.
              */
             List<Element> result=maximumsColumn
                     .stream()
                     .filter(s->s.getValue()==min.getValue())
                     .collect(toList());
 
-            System.out.println("Decisions based on the Savage criterion");
+            /** Выводим полученное решение: номер строки, номер столбца, полученное значение*/
+            System.out.println("Оптимальное решение согласно критерию Сэвиджа");
                 for (int i = 0; i<result.size(); i++) {
                     System.out.println(result.get(i).getRow()+result.get(i).getColumn()+" "+result.get(i).getValue());
             }
@@ -130,9 +132,11 @@ public class DecisionMaker {
 
 
     /**
-     * For each row: find minimum, multiply it by the given c, find maximum, multiply it by 1-c, sum the resulting value.
-     * After this operation is performed to each row, you get a column of weighted averages.
-     * Find the maximum among these averages. This is going to be the decision based on the Hurwicz criterion.
+     * Для каждой строки выполняем следующие действия: находим минимум в строке, умножаем его на данное
+     * значение с, находим максимум, умножаем его на 1-c, суммируем полученные значения.
+     * Выполнив эти действия для каждой строки, получаем массив взвешенных средних.
+     * Находим максимальное значение среди взвешенных средних. Элемент с максимальным значением будет оптимальным
+     * решением согласно критерию Гурвица.
      */
     public void getHurwicz() {
         ArrayList<Element> hwColumn = new ArrayList<>();
@@ -146,7 +150,6 @@ public class DecisionMaker {
 
             Element sum = new Element();
 
-            //To do: define method add() in the Element class
             sum.setValue(minimum.getValue() + maximum.getValue());
             sum.setRow(i);
             sum.setColumn(1);
@@ -163,15 +166,16 @@ public class DecisionMaker {
                 .filter(s -> s.getValue() == finalMax.getValue())
                 .collect(toList());
 
-        System.out.println("Decisions according to Horowicz criterion:");
+        System.out.println("Оптимальное решение согласно критерию Гурвица:");
 
+        /** Печатаем полученное решение: номер строки и взвешенное среднее для нее. */
         for (int k = 0; k < result.size(); k++) {
             System.out.println(result.get(k).getRow() + " " + result.get(k).getValue());
 
         }
     }
 
-    /** find the maximum in the given row **/
+    /** Метод для нахождения максимума в строке **/
     public Element getMaximumInARow(int k) {
         ArrayList<Element> aux=new ArrayList<>();
 
@@ -187,7 +191,7 @@ public class DecisionMaker {
         return max;
     }
 
-    /** find the minimum in the given row **/
+    /** Метод для нахождения минимума в строке **/
     public Element getMinimumInARow(int k) {
         ArrayList<Element> aux=new ArrayList<>();
 
@@ -203,7 +207,7 @@ public class DecisionMaker {
         return min;
     }
 
-    /** find the maximum in the given column */
+    /** Метод для нахождения максимума в столбце */
     public Element getMaximumInAColumn(int k, @NotNull Matrix matrix) {
         ArrayList<Element> aux = new ArrayList<Element>();
 

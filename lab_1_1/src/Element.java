@@ -1,11 +1,7 @@
-/**
- * Данный класс представляет собой элемент матрицы.
- * Объект класса хранит значение и индексы (строка и столбец).
- * Нумерация столбцов и строк начинается с 0.
- */
-
 public class Element {
     private double value;
+    private double demand;
+    private double order;
     private String row;
     private String column;
 
@@ -42,5 +38,21 @@ public class Element {
 
     public void setColumn(int j) {
         this.column = "F"+j;
+    }
+
+    public double getDemand() {
+        return demand;
+    }
+
+    public void setDemand(double demand) {
+        this.demand = demand;
+    }
+
+    public double getOrder() {
+        return order;
+    }
+
+    public void setOrder(double order) {
+        this.order = order;
     }
 }

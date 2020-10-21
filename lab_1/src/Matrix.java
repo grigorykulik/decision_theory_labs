@@ -4,7 +4,7 @@ import java.io.FileReader;
 import java.util.Scanner;
 
 
-//Object of this class is the matrix that the program reads from the given file
+/** Объект данного класса - это матрица, которую программа считывает из указанного файла. */
 public class Matrix {
     final int rows=4;
     final int columns=5;
@@ -20,12 +20,12 @@ public class Matrix {
             }
         }
 
-        //Read the matrix from the file.
+        /** Считываем матрицу из файла */
         try {
         Scanner sc=new Scanner(new BufferedReader(new FileReader(filename)));
             while (sc.hasNextLine()) {
 
-                //Set value for each element and its indices (row and column)
+                /** Для каждого элемента матрицы устанавливаем значение и индексы */
                 for (int i = 0; i < mtrx.length; i++) {
                     String[] line = sc.nextLine().trim().split(" ");
                     for (int j = 0; j < line.length; j++) {
@@ -36,6 +36,7 @@ public class Matrix {
                 }
             }
         }
+        /** Если файл не найден, выбрасываем исключение. */
        catch (FileNotFoundException e) {
             System.out.println("File not found. Check that the file exists.");
             System.exit(0);
