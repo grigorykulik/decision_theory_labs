@@ -1,4 +1,4 @@
-/** Объект данного класса - это матрица, которую программа считывает из указанного файла. */
+// Автоматически создаваемая матрица доходов
 public class Matrix {
     final int rows=5;
     final int columns=5;
@@ -8,13 +8,14 @@ public class Matrix {
 
     public Matrix() {
 
-        //Initialize elements in mtrx
+        //Инициализируем элементы матрицы
         for (int i=0; i<rows; i++){
             for (int j=0; j<columns; j++) {
                 mtrx[i][j]=new Element();
             }
         }
 
+        //Устанавливаем размер спроса и заказа, соответствующие каждому элементу
         for (int i=0; i<5; i++) {
             double demand=100;
 
@@ -26,6 +27,7 @@ public class Matrix {
             order+=50;
         }
 
+        //Заполняем матрицу доходов по алгоритму, показанному на занятии
         for (int i=0; i<5; i++) {
             for (int j=0; j<5; j++) {
                 if (mtrx[i][j].getDemand() == mtrx[i][j].getOrder()) {

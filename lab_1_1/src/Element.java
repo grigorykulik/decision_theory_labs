@@ -1,43 +1,21 @@
+// Класс элемента матрицы.
 public class Element {
+    //Доход при соответствующем размере спроса и заказа
     private double value;
+    //Размер спроса
     private double demand;
+    //Размер заказа
     private double order;
-    private String row;
-    private String column;
+
 
     public Element () {}
 
-    /** Конструктор копий */
-    public Element(Element e){
-        this.row=e.row;
-        this.column=e.column;
-        this.value=e.value;
-    }
-
-
-    /** Геттеры и сеттеры */
     public double getValue() {
         return value;
     }
 
     public void setValue(double value) {
         this.value = value;
-    }
-
-    public String getRow() {
-        return row;
-    }
-
-    public void setRow(int i) {
-        this.row = "X"+i;
-    }
-
-    public String getColumn() {
-        return column;
-    }
-
-    public void setColumn(int j) {
-        this.column = "F"+j;
     }
 
     public double getDemand() {
