@@ -32,11 +32,11 @@ public class DecisionMaker {
 
     //Перегружаем предыдущий метод
     public void printMatrix(Matrix m) {
-        for (int i=0; i<5; i++) {
+        for (int i=0; i<7; i++) {
             System.out.print("Заказ: ");
             System.out.printf("%5.0f", m.mtrx[i][0].getOrder());
             System.out.print("|");
-            for (int j=0; j<5; j++) {
+            for (int j=0; j<7; j++) {
                 System.out.printf("%5.0f", m.mtrx[i][j].getValue());
             }
             System.out.println();
@@ -53,15 +53,17 @@ public class DecisionMaker {
 
         //Массив для хранения вероятностей
         ArrayList<Double> quotients=new ArrayList<>();
-        quotients.add(0.25);
-        quotients.add(0.15);
-        quotients.add(0.1);
-        quotients.add(0.3);
-        quotients.add(0.2);
+        quotients.add(0.35);
+        quotients.add(0.21);
+        quotients.add(0.19);
+        quotients.add(0.09);
+        quotients.add(0.09);
+        quotients.add(0.06);
+        quotients.add(0.01);
 
         //Умножаем все элементы матрицы на соответствующие вероятности
-        for (int i=0; i<5; i++) {
-            for (int j=0; j<5; j++) {
+        for (int i=0; i<7; i++) {
+            for (int j=0; j<7; j++) {
                 double newValue=m.mtrx[i][j].getValue()*
                         quotients.get(j);
                 auxMatrixMutable.mtrx[i][j].setValue(newValue);
