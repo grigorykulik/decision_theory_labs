@@ -27,11 +27,6 @@ public class MatrixYearTwo extends Matrix {
                     double profit=mtrx[i][j].getOrder()*10;
                     mtrx[i][j].setValue(profit);
                 }
-
-//                else {
-//                    double profit=mtrx[i][j-1].getValue();
-//                    mtrx[i][j].setValue(profit);
-//                }
             }
         }
     }

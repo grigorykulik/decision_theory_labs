@@ -9,9 +9,9 @@ public class Main {
         DecisionMaker dm=new DecisionMaker(mx, mx2);
 
         //Печатаем исходную матрицу
-        dm.printMatrix();
+        dm.printMatrix(mx, "Доходы, год 1");
         System.out.println();
-        dm.printMatrix(mx2);
+        dm.printMatrix(mx2, "Доходы, год 2");
 
         //Получаем оптимальное решение и распечатываем результаты
         dm.getBL();

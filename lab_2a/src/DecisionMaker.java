@@ -17,29 +17,16 @@ public class DecisionMaker {
         return this.m;
     }
 
-    //Метод, который выводит оригинальную матрицу
-    public void printMatrix() {
-        System.out.println("Исходная матрица");
-        for (int i=0; i<this.getM().rows; i++) {
-            System.out.print("Заказ: ");
-            System.out.printf("%5.0f", this.getM().mtrx[i][0].getOrder());
-            System.out.print("|");
+    //Метод, печатающий матрицу. Принимает на вход матрицу и сообщение
+    public void printMatrix(Matrix m, String message) {
+        System.out.println(message);
 
-            for (int j=0; j<this.getM().columns; j++) {
-                System.out.printf("%5.0f", this.getM().mtrx[i][j].getValue());
-            }
-            System.out.println();
-        }
-    }
-
-    //Перегружаем предыдущий метод
-    public void printMatrix(Matrix m) {
         for (int i=0; i<7; i++) {
             System.out.print("Заказ: ");
-            System.out.printf("%5.0f", m.mtrx[i][0].getOrder());
+            System.out.printf("%10.1f", m.mtrx[i][0].getOrder());
             System.out.print("|");
             for (int j=0; j<7; j++) {
-                System.out.printf("%5.0f", m.mtrx[i][j].getValue());
+                System.out.printf("%10.1f", m.mtrx[i][j].getValue());
             }
             System.out.println();
         }
@@ -48,37 +35,52 @@ public class DecisionMaker {
     //Метод, который выполняет всю вычислительную работу и выводит результаты
     public void getBL () {
         //Создаем новую матрицу, все элементы которой будем умножать на соответствующие коэффициенты
-        Matrix auxMatrixMutable=new Matrix();
+        Matrix auxMatrixMutableYearOne=new Matrix();
+        Matrix auxMatrixMutableYearTwo=new Matrix();
 
         //Массив для хранения математических ожиданий по каждой строке
         ArrayList<Element> mathExpColumn=new ArrayList<>();
 
         //Массив для хранения вероятностей
-        ArrayList<Double> quotients=new ArrayList<>();
-        quotients.add(0.35);
-        quotients.add(0.21);
-        quotients.add(0.19);
-        quotients.add(0.09);
-        quotients.add(0.09);
-        quotients.add(0.06);
-        quotients.add(0.01);
+        ArrayList<Double> quotientsYearOne=new ArrayList<>();
+        quotientsYearOne.add(0.35);
+        quotientsYearOne.add(0.21);
+        quotientsYearOne.add(0.19);
+        quotientsYearOne.add(0.09);
+        quotientsYearOne.add(0.09);
+        quotientsYearOne.add(0.06);
+        quotientsYearOne.add(0.01);
 
-        //Умножаем все элементы матрицы на соответствующие вероятности
+        ArrayList<Double> quotientsYearTwo=new ArrayList<>();
+        quotientsYearTwo.add(0.01);
+        quotientsYearTwo.add(0.02);
+        quotientsYearTwo.add(0.2);
+        quotientsYearTwo.add(0.2);
+        quotientsYearTwo.add(0.07);
+        quotientsYearTwo.add(0.15);
+        quotientsYearTwo.add(0.35);
+
+        //Умножаем все элементы матрицы за 1-й b 2-й год на соответствующие вероятности
         for (int i=0; i<7; i++) {
             for (int j=0; j<7; j++) {
                 double newValue=m.mtrx[i][j].getValue()*
-                        quotients.get(j);
-                auxMatrixMutable.mtrx[i][j].setValue(newValue);
+                        quotientsYearOne.get(j);
+                auxMatrixMutableYearOne.mtrx[i][j].setValue(newValue);
+
+                double newValue2=m2.mtrx[i][j].getValue()*
+                        quotientsYearTwo.get(j);
+                auxMatrixMutableYearTwo.mtrx[i][j].setValue(newValue2);
             }
         }
 
         System.out.println();
-        System.out.println("Матрица решений с примененными коэффициентами");
-        printMatrix(auxMatrixMutable);
+        printMatrix(auxMatrixMutableYearOne, "Матрица доходов за 1-й год с примененными коэффициентами");
+        System.out.println();
+        printMatrix(auxMatrixMutableYearTwo, "Матрица доходов за 2-й год с примененными коэффициентами");
 
         //Вызываем метод, который находит математическое ожидание, для каждой строки
         for (int i=0; i<5; i++) {
-            mathExpColumn.add(getMathExpInRow(i, auxMatrixMutable));
+            mathExpColumn.add(getMathExpInRow(i, auxMatrixMutableYearOne));
         }
 
         //Находим максимальный элемент в массиве математических ожиданий по строкам
