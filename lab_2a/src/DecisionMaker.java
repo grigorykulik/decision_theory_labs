@@ -5,10 +5,12 @@ import java.util.stream.Collectors;
 
 public class DecisionMaker {
 
-    private Matrix m;
+    private MatrixYearOne m;
+    private MatrixYearTwo m2;
 
-    public DecisionMaker(Matrix m) {
+    public DecisionMaker(MatrixYearOne m, MatrixYearTwo m2) {
         this.m=m;
+        this.m2=m2;
     }
 
     public Matrix getM() {
