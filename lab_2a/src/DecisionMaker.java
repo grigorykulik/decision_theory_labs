@@ -35,11 +35,14 @@ public class DecisionMaker {
     //Метод, который выполняет всю вычислительную работу и выводит результаты
     public void getBL () {
         //Создаем новую матрицу, все элементы которой будем умножать на соответствующие коэффициенты
-        Matrix auxMatrixMutableYearOne=new Matrix();
-        Matrix auxMatrixMutableYearTwo=new Matrix();
+        Matrix auxMatrixMutableYearOne=new MatrixYearOne();
+        Matrix auxMatrixMutableYearTwo=new MatrixYearTwo();
 
         //Массив для хранения математических ожиданий по каждой строке
-        ArrayList<Element> mathExpColumn=new ArrayList<>();
+        ArrayList<Element> mathExpColumnYearOne=new ArrayList<>();
+        ArrayList<Element> mathExpColumnYearTwo=new ArrayList<>();
+
+        ArrayList<Element> finalMathExp=new ArrayList<>();
 
         //Массив для хранения вероятностей
         ArrayList<Double> quotientsYearOne=new ArrayList<>();
@@ -79,12 +82,17 @@ public class DecisionMaker {
         printMatrix(auxMatrixMutableYearTwo, "Матрица доходов за 2-й год с примененными коэффициентами");
 
         //Вызываем метод, который находит математическое ожидание, для каждой строки
-        for (int i=0; i<5; i++) {
-            mathExpColumn.add(getMathExpInRow(i, auxMatrixMutableYearOne));
+        for (int i=0; i<7; i++) {
+            mathExpColumnYearOne.add(getMathExpInRow(i, auxMatrixMutableYearOne));
+            mathExpColumnYearTwo.add(getMathExpInRow(i, auxMatrixMutableYearTwo));
+        }
+
+        for (int i=0; i<7; i++) {
+            finalMathExp.add(getFinalMathExp(i, mathExpColumnYearOne, mathExpColumnYearTwo, quotientsYearOne));
         }
 
         //Находим максимальный элемент в массиве математических ожиданий по строкам
-        Element maxMathExp = mathExpColumn
+        Element finalMaxMathExp = finalMathExp
                 .stream()
                 .max(Comparator.comparing(Element::getValue))
                 .orElseThrow(NoSuchElementException::new);
@@ -92,16 +100,16 @@ public class DecisionMaker {
         System.out.println();
         System.out.println("Математические ожидания:");
 
-        for(Element e : mathExpColumn) {
+        for(Element e : finalMathExp) {
             System.out.println("Размер заказа: "+e.getOrder() + ", математическое ожидание: "
             +e.getValue());
         }
 
         System.out.println();
         System.out.println("Максимальное математическое ожидание (оптимальный ожидаемый доход):" +
-                maxMathExp.getValue() + " тыс. долл. США");
+                finalMaxMathExp.getValue() + " тыс. долл. США");
         System.out.println("Ему соответствует заказ в: " +
-                maxMathExp.getOrder() + " автомобилей");
+                finalMaxMathExp.getOrder() + " автомобилей");
     }
 
     //Метод для нахождения математических ожиданий по строкам
@@ -122,5 +130,25 @@ public class DecisionMaker {
         mathExp.setOrder(matrix.mtrx[k][0].getOrder());
 
         return mathExp;
+    }
+
+    public Element getFinalMathExp(int k, ArrayList<Element> mathExpColumnYearOne,
+                                   ArrayList<Element> mathExpColumnYearTwo,
+                                   ArrayList<Double> quotientsYearOne) {
+
+        double sum=mathExpColumnYearOne.get(k).getValue();
+
+        int j=k;
+        for (int i=0; i<k+1; i++) {
+            sum+=quotientsYearOne.get(i)*mathExpColumnYearTwo.get(j).getValue();
+            j--;
+        }
+
+        Element finalMathExp=new Element();
+        finalMathExp.setValue(sum);
+        finalMathExp.setOrder(mathExpColumnYearOne.get(k).getOrder());
+
+        return finalMathExp;
+
     }
 }
