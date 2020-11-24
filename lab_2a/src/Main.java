@@ -1,6 +1,6 @@
 public class Main {
     public static void main(String[] args) {
-        //Создаем новую матрицу
+        //Создаем матрицы доходов за первый и второй год
         MatrixYearOne mx=new MatrixYearOne();
         MatrixYearTwo mx2=new MatrixYearTwo();
 
@@ -8,9 +8,11 @@ public class Main {
         //и выводить результат
         DecisionMaker dm=new DecisionMaker(mx, mx2);
 
-        //Печатаем исходную матрицу
+        //Печатаем матрицу доходов за первый год
         dm.printMatrix(mx, "Доходы, год 1");
         System.out.println();
+
+        //Печатаем матрицу доходов за второй год
         dm.printMatrix(mx2, "Доходы, год 2");
 
         //Получаем оптимальное решение и распечатываем результаты

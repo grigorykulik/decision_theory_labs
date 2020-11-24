@@ -5,7 +5,10 @@ import java.util.stream.Collectors;
 
 public class DecisionMaker {
 
+    //Матрица доходов за первый год
     private MatrixYearOne m;
+
+    //Матрица доходов за второй год
     private MatrixYearTwo m2;
 
     public DecisionMaker(MatrixYearOne m, MatrixYearTwo m2) {
@@ -34,14 +37,15 @@ public class DecisionMaker {
 
     //Метод, который выполняет всю вычислительную работу и выводит результаты
     public void getBL () {
-        //Создаем новую матрицу, все элементы которой будем умножать на соответствующие коэффициенты
+        //Создаем новые матрицы, все элементы которых будем умножать на соответствующие коэффициенты
         Matrix auxMatrixMutableYearOne=new MatrixYearOne();
         Matrix auxMatrixMutableYearTwo=new MatrixYearTwo();
 
-        //Массив для хранения математических ожиданий по каждой строке
+        //Массивы для хранения математических ожиданий по каждой строке для первого и второго года
         ArrayList<Element> mathExpColumnYearOne=new ArrayList<>();
         ArrayList<Element> mathExpColumnYearTwo=new ArrayList<>();
 
+        //Массив для хранения суммарного математического ожидания за первый и второй годы
         ArrayList<Element> finalMathExp=new ArrayList<>();
 
         //Массив для хранения вероятностей
@@ -63,7 +67,7 @@ public class DecisionMaker {
         quotientsYearTwo.add(0.15);
         quotientsYearTwo.add(0.35);
 
-        //Умножаем все элементы матрицы за 1-й b 2-й год на соответствующие вероятности
+        //Умножаем все элементы матриц за 1-й и 2-й год на соответствующие вероятности
         for (int i=0; i<7; i++) {
             for (int j=0; j<7; j++) {
                 double newValue=m.mtrx[i][j].getValue()*
@@ -87,11 +91,12 @@ public class DecisionMaker {
             mathExpColumnYearTwo.add(getMathExpInRow(i, auxMatrixMutableYearTwo));
         }
 
+        //Вызываем метод для расчета итогового столбца Ri на основе таблиц за первый и второй год
         for (int i=0; i<7; i++) {
             finalMathExp.add(getFinalMathExp(i, mathExpColumnYearOne, mathExpColumnYearTwo, quotientsYearOne));
         }
 
-        //Находим максимальный элемент в массиве математических ожиданий по строкам
+        //Находим максимальный элемент в столбце Ri
         Element finalMaxMathExp = finalMathExp
                 .stream()
                 .max(Comparator.comparing(Element::getValue))
@@ -132,6 +137,7 @@ public class DecisionMaker {
         return mathExp;
     }
 
+    //Метод для нахождения результирующего столбца Ri
     public Element getFinalMathExp(int k, ArrayList<Element> mathExpColumnYearOne,
                                    ArrayList<Element> mathExpColumnYearTwo,
                                    ArrayList<Double> quotientsYearOne) {

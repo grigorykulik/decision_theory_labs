@@ -1,4 +1,3 @@
-// Автоматически создаваемая матрица доходов
 public class Matrix {
     final int rows=7;
     final int columns=7;
@@ -13,7 +12,7 @@ public class Matrix {
             for (int j=0; j<columns; j++) {
                 mtrx[i][j]=new Element();
             }
-        }  
+        }
 
     }
 }
